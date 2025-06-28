@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <script>
+    // When the sidebar is loaded, call the server-side function to get the checkbox options
+      window.onload = function() {
+        google.script.run.withSuccessHandler(renderCheckboxes).getCheckboxOptions();
+      };
+
+      // This function dynamically adds checkboxes to the form
+      function renderCheckboxes(options) {
+        const container = document.getElementById('checkboxContainer');
+        container.innerHTML = '';  // Clear any existing content
+        
+        // Create a "Select All" checkbox
+        const selectAllLabel = document.createElement('label');
+        const selectAllCheckbox = document.createElement('input');
+        
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.id = 'selectAll'; // Set an ID for the "Select All" checkbox
+        selectAllLabel.appendChild(selectAllCheckbox);
+        selectAllLabel.appendChild(document.createTextNode(' Select All'));
+        container.appendChild(selectAllLabel);
+        container.appendChild(document.createElement('br'));  // Add a line break after "Select All"
+
+        // Create checkboxes for each option
+        options.forEach(option => {
+          const checkboxLabel = document.createElement('label');
+          const checkbox = document.createElement('input');
+          
+          checkbox.type = 'checkbox';
+          checkbox.name = 'options';
+          checkbox.value = option;
+          checkbox.className = 'option-checkbox'; // Add class for easier access
+
+          checkboxLabel.appendChild(checkbox);
+          checkboxLabel.appendChild(document.createTextNode(option));
+          container.appendChild(checkboxLabel);
+          container.appendChild(document.createElement('br'));  // Add a line break after each checkbox
+        });
+
+        // Add event listener to the "Select All" checkbox
+        selectAllCheckbox.addEventListener('change', function() {
+          const checkboxes = document.querySelectorAll('.option-checkbox');
+          checkboxes.forEach(cb => {
+            cb.checked = this.checked; // Set the checked property of each checkbox
+          });
+        });
+      }
+
+      // Corrected submitForm function to properly gather and send the selected values
+      function submitForm() {
+      // Get the selected values from the form
+      const form = document.getElementById('selectForm');
+      const formData = new FormData(form);
+      const selectedValues = formData.getAll('options'); // Get all selected checkboxes
+
+      // Log selected values to check (can be removed in production)
+      selectedValues.forEach((value, index) => {
+      console.log(`Selected Value ${index}:`, value);  // Logs individual selected values
+      });
+
+    // Check if there are selected values before sending to the server
+    if (Array.isArray(selectedValues) && selectedValues.length > 0) {
+       google.script.run
+      .withSuccessHandler(function() {
+        console.log('Values successfully submitted to populateCell.'); // Success log
+        google.script.host.close();  // Close the sidebar after successful submission
+      })
+      .withFailureHandler(function(error) {
+        console.error('Error occurred while calling populateCell: ', error); // Log any error
+      })
+      .populateCell(selectedValues);  // Send selected values to the server-side Apps Script
+    } else {
+        alert('Please select at least one option.');  // Prompt if nothing is selected
+    }
+}
+  </script>
+</head>
+
+<body>
+  <form id="selectForm">
+    <div id="checkboxContainer">
+      <!-- Checkboxes will be dynamically populated here -->
+    </div>
+    <button type="button" onclick="submitForm()">Submit</button>
+  </form>
+</body>
+
+</html>

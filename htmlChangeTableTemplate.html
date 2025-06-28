@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .table-container {
+      width: 90%; /* Adjusted width */
+      margin: auto; /* Center the container */
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%; /* Table will take full width of the container */
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #4CAF50;
+      color: white;
+    }
+    .change-type-added {
+      color: red;
+      font-weight: bold;
+    }
+    .change-type-removed {
+      color: green;
+      font-weight: bold;
+    }
+    /* Specific style for the first column */
+    .narrow-column {
+      width: 25%; /* Adjusted width for the first column */
+    }
+  </style>
+</head>
+<body>
+  <div class="table-container">
+    <table>
+      <tr style="background-color: #ffffff; font-weight: bold;">
+        <td class="narrow-column"><strong>What's changed?</strong></td>
+        <td class="<?= changeTypeClass ?>">Assignment <?= changeType ?> !!!</td>
+      </tr>
+      <tr style="background-color: #f0f8ff;">
+        <td class="narrow-column">Worship Team Member affected</td>
+        <td><?= affectedName ?></td>
+      </tr>
+      <tr style="background-color: #ffffff;">
+        <td class="narrow-column">Worship Task Name</td>
+        <td style="color: blue"><?= taskName ?></td>
+      </tr>
+      <tr style="background-color: #f0f8ff;">
+        <td class="narrow-column">Worship Date affected</td>
+        <td><?= modifyDate ?></td>
+      </tr>
+      <tr style="background-color: #ffffff;">
+        <td class="narrow-column">Reason for this change?</td>
+        <td><?= changeDescription ?></td>
+      </tr>
+      <tr style="background-color: #f0f8ff;">
+        <td class="narrow-column">Who is making this change?</td>
+        <td><?= userName ?></td>
+      </tr>
+      <tr style="background-color: #ffffff;">
+        <td class="narrow-column">Today</td>
+        <td><?= toDay ?></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

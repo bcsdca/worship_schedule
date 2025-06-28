@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <style>
+    body {
+      background-color: #f3e5f5; /* Light purple background */
+      font-family: Arial, sans-serif;
+      margin: 0; /* Reset default margin */
+      padding: 0; /* Reset default padding */
+    }
+
+    .container {
+      overflow: auto; /* Ensures that floated elements are contained */
+      padding: 20px; /* Add padding around the container */
+    }
+
+    .cec_logo {
+      width: 99%;
+      height: 120px;
+      display: block;
+      object-fit: contain;
+      border-width: 2px;
+      border-color: blue;
+      border-style: dotted;
+      margin-top: 20px; /* Space above the image */
+    }
+
+    .special {
+      width: 40%; /* Set a width for the image */
+      height: auto; /* Maintain aspect ratio */
+      object-fit: contain;
+      float: right;
+      margin-right: 20px;
+      margin-bottom: 20px; /* Space below the image */
+    }
+
+    .block_padding {
+      font-size: 11pt;
+      color: purple;
+      line-height: 1.38;
+      text-align: left;
+      padding: 20px;
+      white-space: pre-line; /* Preserves line breaks */
+      margin: 0 0 20px 0; /* Space below the block padding */
+    }
+
+    .p_style {
+      font-size: 11pt;
+      line-height: 1.38;
+      text-align: left;
+      margin: 0 0 10px 0; /* Space below each paragraph */
+      padding: 0;
+      white-space: pre-line; /* Preserves line breaks and spaces */
+    }
+
+    .span_mc, .span_ot, .span_mh, .span_pt {
+      font-family: Arial;
+      font-weight: bold;
+      font-style: italic;
+      text-decoration: underline;
+      background-color: transparent;
+    }
+
+    .span_mc { color: green; }
+    .span_ot { color: magenta; }
+    .span_mh { color: blue; }
+    .span_pt {
+      color: white;
+      background-color: red;
+      padding: 2px 4px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: green;
+      cursor: pointer;
+      animation: blink 500ms infinite alternate;
+    }
+
+    .p_alert_msg_style {
+      font-size: 11pt;
+      color: red;
+      line-height: 1.38;
+      text-align: left;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      margin: 0px;
+      padding: 0px;
+      white-space: pre-wrap;
+    }
+
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img class="special" src="cid:special" alt="">
+    <p class="p_style">msg1a</p>
+    <p class="p_style">msg1b<span class="span_mc">msg1b_mc</span>msg1c<span class="span_pt">msg1c_pt</span>msg1d</p>
+    <div>
+      <p class="block_padding">msg3</p>
+    </div>
+    <p class="p_style">msg_worship_chairperson1<span class="span_mc">msg_worship_chairperson2</span>msg_worship_chairperson3</p>
+    <p class="p_style">msg_on_stage_translator1<span class="span_ot">msg_on_stage_translator2</span>msg_on_stage_translator3</p>
+    <p class="p_style">msg_mandarin_av_helper1<span class="span_mh">msg_mandarin_av_helper2</span>msg_mandarin_av_helper3</p>
+    <p class="p_style">msg2</p>
+    <p class="p_alert_msg_style">msg_alert</p>
+  </div>
+  <br>
+  <p><a href="url">View Current Quarter Worship Schedule</a></p>
+  <br>
+  <img class="cec_logo" src="cid:CEClogo" alt="">
+</body>
+
+</html>
