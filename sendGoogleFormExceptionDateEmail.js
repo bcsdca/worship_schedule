@@ -1,6 +1,6 @@
 // sendEmailList is based on the contact, and not all co-workers in the schedule
 // test or normal run is based on the "ExceptionMMTemplate" tab of the worship Google Slide
-
+/*
 function sendGoogleFormExceptionDateEmail() {
   clearLogSheet();
   // Get remaining email quota
@@ -195,3 +195,4 @@ function isExcludedTask(excludeSME, task) {
     trimmedTask.toLowerCase().startsWith(excludeTask)
   );
 }
+*/

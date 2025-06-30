@@ -58,8 +58,8 @@ function renderImages() {
       1: DriveApp.getFileById("1_6xLq2dqhSnth71RqcsdKvfrMrXvpOtB").getAs("image/gif"), // Welcome June
       2: DriveApp.getFileById("1lcoL278fcehkwpYIMfR-150TzulZhy4q").getAs("image/gif"), // James 1:12
       3: DriveApp.getFileById("1g0j6ZkdT79JWEL0NPxJYmA6qdwHwzXXt").getAs("image/gif"), // Father's Day
-      4: DriveApp.getFileById("1wAj19OrgLgCbHi_fZoZLciqQw2NlLnXz").getAs("image/png"), // Pharaoh's Dream
-      5: DriveApp.getFileById("1isBskX35M6CxjkW5gFL3YPacJahFmtqP").getAs("image/gif"), // Deuteronomy 31:8
+      4: DriveApp.getFileById("1isBskX35M6CxjkW5gFL3YPacJahFmtqP").getAs("image/gif"), // Deuteronomy 31:8
+      5: DriveApp.getFileById("1p_apgtfIFByNBGLub3HBD3bJKfuofFgX").getAs("image/gif"), // Every Morning is New
       default: DriveApp.getFileById("1p_apgtfIFByNBGLub3HBD3bJKfuofFgX").getAs("image/gif") // Every Morning is New
     },
     6: { // July

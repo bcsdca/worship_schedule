@@ -49,7 +49,7 @@ function onOpen(e) {
     .addItem('17. Stop YouTube Stat Collection', 'removeGetYouTubeStatsTrigger')
 
   // Submenu: Remove All Triggers Eue To End Of Quarter
-  const removeAllriggersMenu = ui.createMenu('Remove All Triggers Eue To End Of Quarter')
+  const removeAllriggersMenu = ui.createMenu('Remove All Triggers Due To End Of Quarter')
     .addItem('18. Remove All Triggers for End of Quarter', 'removeAllTriggers');
 
   // Add all submenus to the main menu
