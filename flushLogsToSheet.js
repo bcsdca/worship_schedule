@@ -1,6 +1,8 @@
 function flushLogsToSheet() {
   if (logBuffer.length === 0) return; // Nothing to write
 
+  logMessage(getCallStackTrace() + `: Invoking flushing all the console logs to runLog...`)
+  
   const logSheet = getLogSheet(); // Ensure sheet exists
   const lastRow = logSheet.getLastRow(); // Find the last row with content
   const numRows = logBuffer.length;

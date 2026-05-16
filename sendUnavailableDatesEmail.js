@@ -8,21 +8,29 @@ function sendUnavailableDatesEmail() {
   logMessage(getCallStackTrace() + `Remaining email quota_before: ${emailQuotaRemaining}`);
 
   const exceptionMMTemplateSheet = SpreadsheetApp.getActive().getSheetByName("unavailableMMTemplate");
-
+  
   // Fetch email subject, content, test mode, test person, and Google Form URL from the sheet
   const emailSubject = exceptionMMTemplateSheet.getRange(1, 2).getDisplayValue();
   const msg1 = exceptionMMTemplateSheet.getRange(2, 2).getDisplayValue();
   const isTestMode = exceptionMMTemplateSheet.getRange(3, 2).getDisplayValue() === "TRUE";
   const testPerson = exceptionMMTemplateSheet.getRange(4, 2).getDisplayValue();
-  const unavailableSheetURL = exceptionMMTemplateSheet.getRange(5, 2).getDisplayValue();
+  //const unavailableDatesSheetURL = exceptionMMTemplateSheet.getRange(5, 2).getDisplayValue();
+
+  const ss = SpreadsheetApp.getActive();
+  const unavailableDatesSheet = ss.getSheetByName("Unavailable Dates");
+
+  const unavailableDatesSheetURL =
+    `https://docs.google.com/spreadsheets/d/${ss.getId()}/edit#gid=${unavailableDatesSheet.getSheetId()}`;
+
+  logMessage(getCallStackTrace() + `The unavailable Date sheet url: ${unavailableDatesSheetURL}`);
 
   // Fetch contact information from the "contact" sheet
   const contactSheet = SpreadsheetApp.getActive().getSheetByName("contact");
   const contactData = contactSheet.getDataRange().getDisplayValues();
-  
+
   // dont send this email to the persons below
   //const excludedNames = ["Alfred Ip", "Hilbert Chu", "Peggy Chu", "Winkie Zhang", "Wellington Hui"];
-  
+
   // Define the array of tasks to exclude if they are the only tasks someone is performing, 
   // and not sending email to these person
   // it is lower case because it was used to compare with the force to lower case in isExcludedTask function
@@ -45,20 +53,20 @@ function sendUnavailableDatesEmail() {
 
       if (email && !emailArray.includes(email)) {
         let smeArray = smeColumn.split(",");
-        
+
         // Check if any SME should be excluded
         const shouldExclude = smeArray.some(sme => {
-        const isExcluded = isExcludedTask(excludeSME, sme);
-        const hasValidOtherSME = smeArray.some(otherSme =>
-        otherSme !== sme && !isExcludedTask(excludeSME, otherSme)
-        );
+          const isExcluded = isExcludedTask(excludeSME, sme);
+          const hasValidOtherSME = smeArray.some(otherSme =>
+            otherSme !== sme && !isExcludedTask(excludeSME, otherSme)
+          );
 
-        // Log details for debugging
-        if (isExcluded && !hasValidOtherSME) {
-          logMessage(getCallStackTrace() + `: Excluding task: ${smeArray}, Email: ${email}, Row: ${index + 1}`);
-        }
+          // Log details for debugging
+          if (isExcluded && !hasValidOtherSME) {
+            logMessage(getCallStackTrace() + `: Excluding task: ${smeArray}, Email: ${email}, Row: ${index + 1}`);
+          }
 
-        return isExcluded && !hasValidOtherSME;
+          return isExcluded && !hasValidOtherSME;
         });
 
         //logMessage(getCallStackTrace() + "Final shouldExclude:", shouldExclude);
@@ -91,7 +99,7 @@ function sendUnavailableDatesEmail() {
 
   let msg2 = "\nLook forward to serving together for our Lord!\n\n-CEC Cantonese Worship Ministry\n";
   logMessage(getCallStackTrace() + `: Email list for sending out this google form for exception report: ${sendEmailList}`);
-  
+
   // Handle test mode
   if (isTestMode) {
     sendEmailList = emailMap.get(testPerson);
@@ -104,7 +112,7 @@ function sendUnavailableDatesEmail() {
   }
 
   // Prepare email body and send emails
-  const emailBody = prepareEmailBody(msg1, msgAlert, msg2, unavailableSheetURL);
+  const emailBody = prepareEmailBody(msg1, msgAlert, msg2, unavailableDatesSheetURL);
 
   sendEmails(sendEmailList, emailSubject, emailBody, sheetName);
 
@@ -156,12 +164,12 @@ function validateEmailAddresses(objectArray, emailMap) {
 }
 
 // Function to prepare the email body
-function prepareEmailBody(msg1, msgAlert, msg2, unavailableSheetURL) {
+function prepareEmailBody(msg1, msgAlert, msg2, unavailableDatesSheetURL) {
   return HtmlService.createHtmlOutputFromFile('htmlFileUnavailableSheet').getContent()
     .replace("msg1", msg1)
     .replace("msg_alert", msgAlert)
     .replace("msg2", msg2)
-    .replace("url", unavailableSheetURL);
+    .replace("url", unavailableDatesSheetURL);
 }
 
 // Function to confirm email sending with the user

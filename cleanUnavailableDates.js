@@ -58,6 +58,10 @@ function cleanUnavailableDates() {
     // Notify the user that the cleanup and data copy process is complete
     SpreadsheetApp.getActive().toast('Done! Cleaned up all previous "Unavailable Date" and "Unavailable Date Response" data and updated with new values 👍');
 
+    //update the sheet permission to editor for everybody to update the "unavailable dates" tab for the 1st time
+    //this permission will get remove on this function "removeUnavailableDatesTrigger"
+    //setAnyoneWithLinkToEditor();
+
   } catch (error) {
     logMessage.Error(getCallStackTrace() + `: Error in cleanUnavailableDates: ${error.message}`);
     flushLogsToSheet();
@@ -120,6 +124,11 @@ function setupUnavailableDatesSheet() {
     .build();
 
   // Add edit permissions to each name's column based on email
+  // commented out on 9/7/2025 because there are problems with
+  // some of us has multiple email accounts
+  // and we will need to include all the email address here,
+  // or they have to set the default email address as below in order for this to work
+  /*
   for (let i = 0; i < names.length; i++) {
     const name = names[i];
     const emailRow = contactData.find(row => row[0] === name);
@@ -142,6 +151,7 @@ function setupUnavailableDatesSheet() {
       }
     }
   }
+  */
 
   const rules = [];
 
@@ -167,4 +177,3 @@ function setupUnavailableDatesSheet() {
 
   unavailableDatesSheet.setConditionalFormatRules(rules);
 }
-

@@ -6,64 +6,71 @@
 
 function onOpen(e) {
   const ui = SpreadsheetApp.getUi();
+  let i = 1;
 
-  // Create the main custom menu
-  //const mainMenu = ui.createMenu('Cantonese Worship Service Utilities');
-  //const mainMenu = ui.createMenu('✨ Cantonese Worship Service Utilities⚡');
-  //const mainMenu = ui.createMenu('💥 Cantonese Worship Service Utilities 💥');
   const mainMenu = ui.createMenu('🎉 Cantonese Worship Service Utilities 🎉');
 
-  // Submenu: "Clean up old copied over worship schedule data and handling "Unavailable Date to Serve
-  const PrepNewQuarterMenu = ui.createMenu('Clean up old worship schedule data and handling "Unavailable Date to Serve"')
-    .addItem('1. Delete All Data in "Cantonese Worship Schedule" Sheet', 'cleanWorshipSchedule')
-    .addItem('2. Delete All Data in "YouTube Stat"', 'cleanYouTubeStat')
-    .addItem('3. Delete All Data and initialize check box and enable email protection in "Unavailable Dates" Sheet', 'cleanUnavailableDates')
-    .addItem('4. Delete All Data in "Unavailable Dates Response" Sheet', 'cleanUnavailableDatesResponse')
-    .addItem('5. Send "Unavailable Date to Serve" Email', 'sendUnavailableDatesEmail')
-    .addItem('6. Enable Monitoring the change in "Unavailable Dates" sheet', 'createUnavailableDatesTrigger')
-    .addItem('7. Disable Monitoring the change in "Unavailable Dates" sheet', 'removeUnavailableDatesTrigger')
-    .addItem('8. Update All Drop Downs', 'updateAllDropDowns');
+  //
+  // ---- STEP Preparation ----
+  //
+  const stepPreparation = ui.createMenu('🛠️ Step "Preparation" – Prepare Coming Quarter Setup(~1 month before the new quarter)')
+    .addItem(`${i++}. Start new schedule preparation`, 'preparation')
+    .addItem(`${i++}. Send "Unavailable Date to Serve" Email`, 'sendUnavailableDatesEmail');
 
-  // Submenu: Preliminary Auto Task assignement
-  const autoTaskAssignMenu = ui.createMenu('Preliminary Automatic Task assignement')
-    .addItem('9. Automatic Task Assignment for Co-workers', 'autoTaskAssignSidebar')
-    .addItem('10. Send Preliminary Worship Schedule for Review', 'quarterlyRMailMerge')
+  //
+  // ---- STEP Task Assignment ----
+  //
+  const stepTaskAssignment = ui.createMenu('⚙️ Step "Task Assignment" – Task Assignment & Email Review(~2 weeks before the new quarter)')
+    .addItem(`${i++}. Prepare Task Assignment`, 'prepareTaskassignement')
+    .addItem(`${i++}. Automatic A/V Task Assignment`, 'autoTaskAssignSidebar')
+    .addItem(`${i++}. Update Dashboard`, 'buildPivotTable')
+    .addItem(`${i++}. Send out Review Task Assignment Email`, 'quarterlyRMailMerge');
 
-  // Submenu: Dashboard Data Management
-  const dashBoardMenu = ui.createMenu('Dashboard Management')
-    .addItem('11. Update Cantonese Worship Dashboard', 'buildPivotTable')
+  //
+  // ---- STEP Go Live ----
+  //
+  const stepGoLive = ui.createMenu('📈 Step "Go Live" – Worship Schedule Go Live(Before the 1st Tuesday of the new quarter)')
+    .addItem(`${i++}. Go Live !!!`, 'goLive');
+    
+  //
+  // ---- STEP optional ----
+  //
+  const optionalSteps = ui.createMenu('🔹 Step "Optional" - Optional steps for managing worship schedule')
+    .addItem(`${i++}. (optional) Stop A/V Schedule Change Monitoring`, 'removeScheduleChangeTrigger')
+    .addItem(`${i++}. (optional) Stop YouTube Stat Collection`, 'removeGetYouTubeStatsTrigger')
+    .addItem(`${i++}. (optional) Remove All Triggers immediately`, 'removeAllTriggers');
 
-  // Submenu: Reminder Settings
-  const reminderMenu = ui.createMenu('Email/Text Worship Reminder Settings')
-    .addItem('12. Scheduling Email Reminder day...', 'emailReminderSidebar')
-    .addItem('13. Scheduling Text Reminder day...', 'textReminderSidebar');
-
-  // Submenu: Schedule Change Monitoring
-  const scheduleChangeMenu = ui.createMenu('Worship Schedule Change Monitoring')
-    .addItem('14. Start A/V Schedule Change Monitoring', 'addScheduleChangeTrigger')
-    .addItem('15. Stop A/V Schedule Change Monitoring', 'removeScheduleChangeTrigger');
-
-  // Submenu: YouTube Stat Collection
-  const youtubeMenu = ui.createMenu('Weekly Worship YouTube Stat Collection')
-    .addItem('16. Start YouTube Stat Collection', 'addGetYouTubeStatsTrigger')
-    .addItem('17. Stop YouTube Stat Collection', 'removeGetYouTubeStatsTrigger')
-
-  // Submenu: Remove All Triggers Eue To End Of Quarter
-  const removeAllriggersMenu = ui.createMenu('Remove All Triggers Due To End Of Quarter')
-    .addItem('18. Remove All Triggers for End of Quarter', 'removeAllTriggers');
-
-  // Add all submenus to the main menu
+  //
+  // Add steps to main menu
+  //
   mainMenu
-    .addSubMenu(PrepNewQuarterMenu)
-    .addSubMenu(autoTaskAssignMenu)
-    .addSubMenu(dashBoardMenu)
-    .addSubMenu(reminderMenu)
-    .addSubMenu(scheduleChangeMenu)
-    .addSubMenu(youtubeMenu)
-    .addSubMenu(removeAllriggersMenu)
+    .addSubMenu(stepPreparation)
+    .addSubMenu(stepTaskAssignment)
+    .addSubMenu(stepGoLive)
+    .addSubMenu(optionalSteps)
     .addToUi();
 }
 
+function preparation() {
+  buildHistoricalNormalizeSchedule(); //Save Old Worship Data to "Historical Normalized Data
+  cleanWorshipSchedule(); //Delete All Data in "Cantonese Worship Schedule" (set next quarter date)
+  cleanYouTubeStat(); //Delete All Data in "YouTube Stat"
+  cleanUnavailableDates(); //Delete All Data + initialize checkboxes in "Unavailable Dates"
+  createUnavailableDatesTrigger(); //start accepting updates in "Unavailable Dates"
+}
+
+function prepareTaskassignement() {
+  removeUnavailableDatesTrigger(); //Stop accepting updates in "Unavailable Dates"
+  updateAllDropDowns(); //Update all dropdowns
+}
+
+function goLive() {
+  emailReminderSidebar(); //Schedule Email Reminder
+  textReminderSidebar(); //Schedule Text Reminder
+  addScheduleChangeTrigger(); //Start A/V Schedule Change Monitoring
+  addGetYouTubeStatsTrigger(); //Start YouTube Stat Collection
+  scheduleQuarterlyTriggerCleanup(); //Schedule End of Quarter cleanup
+}
 
 function emailReminderSidebar() {
   var widget = HtmlService.createHtmlOutputFromFile("htmlSelDay_email");

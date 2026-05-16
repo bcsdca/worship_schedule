@@ -4,6 +4,8 @@ function updateAllDropDowns(arr) {
   const scheduleSheet = ss.getSheets()[0];
   const avSMEColumn = 5; // "Worship SME" is in column 5
 
+  clearLogSheet();
+
   logMessage(getCallStackTrace() + `: Task names array pass in to build pull down:", ${JSON.stringify(arr)}`);
 
   //build SME Data with contact names
@@ -26,10 +28,10 @@ function updateAllDropDowns(arr) {
 
   // Iterate over header columns, starting at column 5 (array index 4)
   for (let headerRowIndex = 4; headerRowIndex < headerRow.length; headerRowIndex++) {
+    
     const taskName = headerRow[headerRowIndex];
-
-    if (arr) {
-      // If arr is defined, update dropdown for only the tasks in arr
+    if (arr && typeof arr !== "object") {
+      // If arr is defined, but not not any object event calling from time base trigger, then update dropdown for only the tasks in arr
       if (arr.includes(taskName)) {
         logMessage(getCallStackTrace() + `: Task name array pass in was defined, updating dropdown for task name: ${taskName}`);
         //this dropDownValues has all the names that are qualified for this taskname, based on the column5 of the contact sheet
@@ -40,7 +42,7 @@ function updateAllDropDowns(arr) {
 
       }
     } else {
-      // If arr is undefined, regenerate dropdowns for all tasks
+      // If arr is undefined, or arr is an object event calling from time base trigger, then regenerate dropdowns for all tasks
       logMessage(getCallStackTrace() + `: No task names array pass in, updating dropdown for task name: ${taskName}`);
       const dropDownValues = searchSMEObjectArray(objectArray, taskName);
       updateColumnDropDownUnDates(dataRowStart, dataRowEnd, headerRow, headerRowIndex, dropDownValues);
@@ -49,6 +51,7 @@ function updateAllDropDowns(arr) {
 
   SpreadsheetApp.getActive().toast("Done! Successfully updated all worship schedule dropdowns 👍");
   logMessage(getCallStackTrace() + `: updateScheduleDropDown: Done updating all dropdowns.`);
+  flushLogsToSheet();
 }
 
 

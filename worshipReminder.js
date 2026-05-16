@@ -120,6 +120,14 @@ function worshipReminder(Modes) {
         //emailImages = {}
         const emailImages = renderImages();
 
+        let specialImageHtml = "";
+
+        if (emailImages.special) {
+          specialImageHtml = `<img class="special" src="cid:special" alt="">`;
+        }
+
+        htmlBody = htmlBody.replace("{{SPECIAL_IMAGE}}", specialImageHtml);
+
         const emailOptions = {
           htmlBody: htmlBody,
           name: "Cantonese Worship Team",
@@ -133,7 +141,22 @@ function worshipReminder(Modes) {
           GmailApp.sendEmail(emailAdd, `${type_of_service[i][0]} Sunday Service(${w_start_date}) Reminder!!!`, htmlBody, emailOptions);
           //GmailApp.sendEmail(email_collection.get("Bill Chu"), `${type_of_service[i][0]} Sunday Service(${w_start_date}) Reminder!!!`, htmlBody, emailOptions);
           logMessage(getCallStackTrace() + ": Sending email to everybody!");
+
+          //set up the trigger to look for the sermon info email and will try to forward to all the appropriate personels
+          //if not testing mode and not run_text mode
+          createForwardSermonInfoTrigger()
+
+          // clean up weekly_sermon_image.png, since worship reminder has already send to everybody
+          // ✅ Get folder
+          const folder = DriveApp.getFolderById(weeklySermonImageFolderID);
+
+          // ✅ Remove existing file (keep only ONE)
+          const files = folder.getFilesByName("weekly_sermon_image.png");
+          while (files.hasNext()) {
+            files.next().setTrashed(true);
+          }
         }
+
         break;
       }
     } else if (run_text) {
@@ -194,10 +217,11 @@ function worshipReminder(Modes) {
 
         logMessage(getCallStackTrace() + ": Deleting all the previous sendTextReminderTrigger if it exists !!!");
 
-        //Then set up a trigger to send textReminders every 5 minutes
+        //Then set up a trigger to send textReminders every "sendTextPeriod" minutes
+        //setup in global variables file
         ScriptApp.newTrigger('sendTextReminderTrigger')
           .timeBased()
-          .everyMinutes(5)
+          .everyMinutes(sendTextPeriod)
           .create();
 
         logMessage(getCallStackTrace() + ": Done with creating sendTextReminderTrigger, and will wait for the trigger to happen to send out reminder text !!!");
@@ -210,11 +234,6 @@ function worshipReminder(Modes) {
   logMessage(getCallStackTrace() + ": Remaining email quota after sending reminder email/text: " + emailQuotaRemaining);
   flushLogsToSheet();
 
-  if ((!run_test) && (!run_text)) {
-    //set up the trigger to look for the sermon info email and will try to forward to all the appropriate personels
-    //if not testing mode and not run_text mode
-    createForwardSermonInfoTrigger()
-  }
 }
 
 function getColumnValues(sheet, startRow, startColumn, lastRow) {
@@ -230,7 +249,8 @@ function getRangeValues(sheet, startRow, startColumn, numRows, numColumns) {
 }
 
 function formatDate(date) {
-  return Utilities.formatDate(date, timeZone, "MM/dd/yyyy");
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), "MM/dd/yyyy");
+  //return Utilities.formatDate(date, timeZone, "MM/dd/yyyy");
 }
 
 function formatTime(time) {
@@ -241,12 +261,25 @@ function formatTime(time) {
 }
 
 function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
+  const comingSundayStr = getComingSunday();
   let worship_chairperson = "";
   let msg3 = "";
   let msg_alert = "";
   let msg_worship_chairperson1 = "", msg_worship_chairperson2 = "", msg_worship_chairperson3 = "";
   let msg_on_stage_translator1 = "", msg_on_stage_translator2 = "", msg_on_stage_translator3 = "";
   let msg_mandarin_av_helper1 = "", msg_mandarin_av_helper2 = "", msg_mandarin_av_helper3 = "";
+  let msg_worship_lords_prayer = '<div style="margin-left:20px;">' +
+    '<span style="font-size:14px;">■ <b>Since this coming Sunday is the 2nd Sunday of the month, please follow this guideline below to lead the congregation to recite the Lord\'s Prayer.</b></span><br><br>' +
+    '***<br>' +
+    '今日是這個月的第2星期日. 我們誦讀主禱文, 主禱文出現在馬太福音和路加福音, 是耶穌教導門徒如何禱告. 如果可以的, 請站立, 一齊誦讀神的話語.<br>' +
+    '***' +
+    '</div>';
+  let msg_worship_apostle_creed = '<div style="margin-left:20px;">' +
+    '<span style="font-size:14px;">■ <b>Since this coming Sunday is the 4th Sunday of the month, please follow this guideline below to lead the congregation to recite the Apostle\'s Creed.</b></span><br><br>' +
+    '***<br>' +
+    '今日是這個月的第4星期日. 我們誦讀使徒信經. 使徙信經概括了基督教的核心教義, 作為我們的信仰宣言. 誦讀時, 不需要站立.<br>' +
+    '***' +
+    '</div>';
 
   for (let k = 0; k < taskNames.length; k++) {
     if (!dutyContacts[k]) continue;
@@ -272,7 +305,25 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
           worship_chairperson = dutyContacts[k];
           msg_worship_chairperson1 = "Dear ";
           msg_worship_chairperson2 = dutyContacts[k];
-          msg_worship_chairperson3 = ", You are assigned to be the Worship Chairperson for this week. Please \"Reply All\" to this email with the invocation passage, as soon as it is selected. Please use one of the following example formats for your invocation passage. It will be easier if you can just copy and paste one of the example below and modify the content:\n***\nCall to worship: 詩篇 Psalm 1xx:1-5\nCall to worship: 詩篇 Psalm 1xx:11b,12-15\nCall to worship: 詩篇 Psalm 1xx:12-15; 提摩太後書 2Timothy 2:21\n***";
+          msg_worship_chairperson3 =
+            ', You are assigned to be the Worship Chairperson for this week.<br><br>' +
+            '<div style="margin-left:20px;">' +
+            '<span style="font-size:14px;">■ <b>Please "Reply All" to this email with the invocation passage, as soon as it is selected.</span><br>' +
+            'Please use one of the example formats below when submitting your invocation passage. This ensures that our weekly worship slides can be generated automatically without issues. <br><br>To make things easier, we strongly recommend copying and pasting one of the examples below and simply updating the content as needed:</b> <br><br>' +
+            '***<br>' +
+            'Call to worship: 詩篇 Psalms 1xx:1-5<br>' +
+            'Call to worship: 詩篇 Psalms 1xx:11b,12-15<br>' +
+            'Call to worship: 詩篇 Psalms 1xx:12-15; 提摩太後書 2Timothy 2:21<br>' +
+            '***' +
+            '</div><br>';
+
+          if (getComingSundayWeekOfMonth() === 2) {
+            msg_worship_chairperson3 =
+              msg_worship_chairperson3 + msg_worship_lords_prayer;
+          } else if (getComingSundayWeekOfMonth() === 4) {
+            msg_worship_chairperson3 =
+              msg_worship_chairperson3 + msg_worship_apostle_creed;
+          }
           break;
         case "On-Stage Translator":
           msg_on_stage_translator1 = "\nDear ";
@@ -284,6 +335,48 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
           msg_mandarin_av_helper2 = dutyContacts[k];
           msg_mandarin_av_helper3 = ", You are assigned to be the Mandarin A/V helper for this week, please arrive at Fellowship Hall by 8:45AM."
           break;
+        case "Power Point Preparation":
+          {
+            // --- Open sheet ---
+            const ss = SpreadsheetApp.openById(weeklyShare);
+            const sheet = ss.getSheetByName("handoff");
+
+            if (!sheet) {
+              throw new Error(`Sheet "handoff" not found in spreadsheet ${weeklyShare}`);
+            }
+
+            // --- Find target row by comingSundayStr ---
+            const data = sheet.getDataRange().getValues();
+            let targetRow = -1;
+
+            for (let i = 1; i < data.length; i++) {
+              //logMessage(`${getCallStackTrace()}: Row ${i + 1} has date = ${data[i][0]}`);
+              if (formatDate(data[i][0]) === comingSundayStr) {
+                targetRow = i + 1; // convert index → sheet row
+                break;
+              }
+            }
+
+            if (targetRow === -1) {
+              logMessageError(`${getCallStackTrace()}: No row found for date: ${comingSundayStr}`);
+              break;
+            }
+
+            // --- Extract contact info ---
+            const name = dutyContacts[k];
+            const email = emailCollection.get(name);
+
+            // --- Update ONLY columns B and C ---
+            sheet.getRange(targetRow, 2).setValue(name);   // Column B
+            sheet.getRange(targetRow, 3).setValue(email);  // Column C
+            sheet.getRange(targetRow, 6).setValue(new Date()); // new date
+
+            logMessage(
+              `${getCallStackTrace()}: Updated Power Point Perparation duty to "weeklyShare" for ${comingSundayStr} at row ${targetRow}, name=${name}, email=${email}`
+            );
+
+            break;
+          }
       }
     }
   }

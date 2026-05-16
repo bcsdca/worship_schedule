@@ -1,6 +1,5 @@
 //this function is used on both slide_src and worship reminder project
 function getComingSundayWeekOfMonth() {
-    const functionName = getComingSundayWeekOfMonth.name;
     // Get the current date
     var today = new Date();
 

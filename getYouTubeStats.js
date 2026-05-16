@@ -179,28 +179,34 @@ function getUpcomingLiveStreamVideoId() {
     const videoDetails = detailsData.items || [];
 
     // Sort by scheduled start time
+    //const sortedStreams = videoDetails
+    //  .filter(item => item.liveStreamingDetails && item.liveStreamingDetails.scheduledStartTime)
+    //  .sort((a, b) =>
+    //    new Date(a.liveStreamingDetails.scheduledStartTime) - new Date(b.liveStreamingDetails.scheduledStartTime)
+    //  );
+
+    // Sort by scheduled start time, only upcoming streams
     const sortedStreams = videoDetails
-      .filter(item => item.liveStreamingDetails && item.liveStreamingDetails.scheduledStartTime)
+      .filter(item =>
+        item.snippet.liveBroadcastContent === "upcoming" &&   // ✅ enforce upcoming
+        item.liveStreamingDetails &&
+        item.liveStreamingDetails.scheduledStartTime
+      )
       .sort((a, b) =>
-        new Date(a.liveStreamingDetails.scheduledStartTime) - new Date(b.liveStreamingDetails.scheduledStartTime)
+        new Date(a.liveStreamingDetails.scheduledStartTime) -
+        new Date(b.liveStreamingDetails.scheduledStartTime)
       );
 
-    // Only look at the 2 closest upcoming livestreams, exclude "english"
-    const topTwo = sortedStreams
-      .filter(item => {
-        const title = item.snippet.title.toLowerCase();
-        return !title.includes("english") && !title.includes("mandarin");
-      })
-      .slice(0, 2);
+    const topFive = sortedStreams.slice(0, 5);
 
-    logMessage(getCallStackTrace() + `: top 2 streams = ${JSON.stringify(topTwo, null, 2)}`);
+    logMessage(getCallStackTrace() + `: top 5 upcomimg streams = ${JSON.stringify(topFive, null, 2)}`);
 
-    const keywords = ["cantonese", "combine", "join"];
+    const keywords = ["cantonese", "joint", "join", "combine"];
 
     let selected = null;
     let matchKeyword = null;
 
-    for (const item of topTwo) {
+    for (const item of topFive) {
       const title = item.snippet.title.toLowerCase();
       matchKeyword = keywords.find(kw => title.includes(kw));
       if (matchKeyword) {

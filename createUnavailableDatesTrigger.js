@@ -6,7 +6,7 @@ function createUnavailableDatesTrigger() {
   const alreadyExists = triggers.some(trigger => trigger.getHandlerFunction() === functionName);
 
   if (alreadyExists) {
-    SpreadsheetApp.getUi().alert(': Monitoring is already enabled.');
+    SpreadsheetApp.getUi().alert('Unavailable sheet Monitoring is already enabled.');
     return;
   }
 
@@ -15,7 +15,13 @@ function createUnavailableDatesTrigger() {
     .onEdit()
     .create();
 
-  SpreadsheetApp.getUi().alert(': Monitoring has been enabled.');
+  SpreadsheetApp.getUi().alert('Unavailable sheet Monitoring has been enabled.');
 
+  //update the sheet permission to editor for everybody to update the "unavailable dates" tab for the 1st time
+  //this permission will get remove on this function "removeUnavailableDatesTrigger"
   setAnyoneWithLinkToEditor();
+
+  //enable the trigger for running the UpdateAllDropDowns function everyday at 12:30am
+  toggleTriggerUpdateAllDropDowns("enable")
+  
 }

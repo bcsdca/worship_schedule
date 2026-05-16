@@ -7,5 +7,5 @@ function setEditorsTofile() {
     file.addEditor(email);
   });
   
-  logMessage(getCallStackTrace() + ": Added editors via DriveApp: " + editorEmailAddresses.join(", "));
+  logMessage(getCallStackTrace() + ": Added editors email address via DriveApp: " + editorEmailAddresses.join(", "));
 }
