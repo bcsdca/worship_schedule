@@ -11,7 +11,7 @@ The system automates:
 - Automatic detection of any worker who should not get assigned that week base on the unavialibiity sheet
 - Automatic checking/detection of any worker who was double booked in any given week
 - Weekly reminder emails
-- Worship coordination notifications
+- Worship schedule assignment change email notifications
 - Worship dashboard generation
 - Livestream statistics collection
 - Integration with downstream slide-generation workflows
@@ -24,9 +24,10 @@ The system automates:
 
 At the beginning of every quarter:
 1. A new worship schedule spreadsheet is created
-2. New worship dates and sermon assignments are entered
-3. Preachers and worship leaders are assigned
-4. Worker availability collection begins
+2. New worship dates and all the tabs are cleanup and initialized
+3. Worker availability date collection begins
+4. Preachers and worship leaders are assigned
+5. Smart A/V assigments, but minor tweak might required due to worker availability or training effort
 
 The system supports ongoing schedule maintenance throughout the quarter.
 
@@ -52,7 +53,7 @@ The scheduling algorithm automatically assigns weekly worship workers based on:
 - Existing workload balance
 - Worship expertise/roles
 - Fair workload distribution
-- Historical assignment counts
+- Historical assignment counts for this quarter
 
 Supported worship roles include:
 - Audio
@@ -91,8 +92,8 @@ Reminder emails include:
 - Assigned duties
 - Worship team information
 - Sermon details
-- Scripture passages
-- Important reminders
+- Invocation Scripture passages request from MC(This is used downstream for worship ppt preparation)
+- Important reminders for MC
 
 This significantly reduces manual follow-up work for coordinators.
 
@@ -105,7 +106,7 @@ Every Tuesday, the worship reminder email may include a PNG image attachment con
 - Sermon scripture passage
 
 ### Conditional Behavior
-- If the sermon information file is received before **11:00 AM Tuesday morning**, the PNG image is included in the reminder email.
+- If the sermon information email is received before **11:00 AM Tuesday morning** (this email needed to have "sermon info" in the gmail subject line), the PNG image with this week's sermon title and sermon passage is included in the reminder email.
 - Otherwise, the reminder email will not contain the PNG attachment.
 
 This helps worship workers prepare earlier in the week.
@@ -165,13 +166,6 @@ Displays:
 - Quarterly workload balancing
 - Assignment statistics
 
-## Worker Contact Directory
-Acts as the central source of truth for:
-- Phone numbers
-- Email addresses
-- Worship expertise areas
-- Ministry roles
-
 ## Assignment Coordination
 Provides worship coordinators with:
 - Quick visibility into worker assignments
@@ -206,19 +200,23 @@ This project integrates with other worship automation systems, including:
 For example:
 - The assigned PPT worker information is stored in the `weeklyShare` spreadsheet by this weekly reminder GAS
 - Downstream GAS projects (slide_src) later use this information to distribute generated worship presentation links
+- to this week's PPT worker via email
 
 ---
 
 # 🏗 High-Level Workflow
 
-```text
-Quarterly Schedule Creation
+ Quarterly Schedule Creation
               ↓
  Worker Availability Collection
               ↓
- smartAssignWorker() Scheduling
+ Speaker/MC/Translator/Song Leader Scheduling
               ↓
- Worker Review & Confirmation
+ A/V smartAssignWorker() Scheduling
+              ↓
+ Worker assignment Review & Confirmation
+              ↓
+ Worship Schedule Go Live
               ↓
  Weekly Reminder Emails
               ↓
@@ -227,7 +225,6 @@ Quarterly Schedule Creation
  Livestream Statistics Collection
               ↓
  Dashboard Reporting & Analytics
-```
 
 ---
 
@@ -255,7 +252,7 @@ Quarterly Schedule Creation
 | PNG Sermon Attachments | Tuesday sermon information images |
 | Schedule Change Alerts | Notify affected workers |
 | Livestream Statistics | Collect weekly livestream data |
-| Dashboard Generation | Workload and contact reporting |
+| Dashboard Generation | Workload reporting |
 | Worker Directory | Centralized contact information |
 | Trigger Management | Automated scheduling tasks |
 
@@ -270,7 +267,7 @@ Quarterly Schedule Creation
 - Centralizes worship coordination data
 - Reduces scheduling conflicts
 - Improves worship ministry organization
-- Enables scalable volunteer coordination
+- Enables scalable volunteer coordination(This is really critical for large number of co-workers)
 
 ---
 
