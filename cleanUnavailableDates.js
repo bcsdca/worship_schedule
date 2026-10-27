@@ -34,14 +34,30 @@ function cleanUnavailableDates() {
     var lastColumn = unavailableDatesSheet.getLastColumn();
 
     logMessage(getCallStackTrace() + `: "Unavailable Dates" sheet before cleanup - lastRow: ${lastRow}, lastColumn: ${lastColumn}`);
-
+    
     // Clear content of all rows and columns except the first row (assumed to contain headers)
     if (lastRow > 1) {
-      //clean out the 1st row, 2nd column, which is the 1st row with all the names, except column 1 of the 1st row, which is "Date"
-      unavailableDatesSheet.getRange(1, 2, 1, lastColumn).clearContent();
-      //clean out the rest of data
-      unavailableDatesSheet.getRange(2, 1, lastRow - 1, lastColumn).clearContent();
+
+      // Clear names in row 1 (except A1)
+      unavailableDatesSheet.getRange(1, 2, 1, lastColumn - 1)
+        .clearContent();
+
+      // Clear all data below header row
+      const dataRange = unavailableDatesSheet.getRange(
+        2,
+        1,
+        lastRow - 1,
+        lastColumn
+      );
+
+      dataRange.clearContent();
+
+      // Also remove all checkboxes
+      dataRange.removeCheckboxes();
+
+      dataRange.clearFormat();
     }
+ 
 
     // Copy the date column from the source sheet into the "Unavailable Dates" sheet
     unavailableDatesSheet.getRange(2, 1, totalSrcRows, 1).setValues(srcValues);

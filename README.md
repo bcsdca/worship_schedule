@@ -303,6 +303,11 @@ Result:
 
 ---
 
+# Accomplished Improvement
+
+- 10/26/2026 streamline the new quarter preparation steps
+- 10/26/2026 autoTask assignment was split up into 2 passes. 1. forced assignment for the whole quarter, base on the weekly constraints or special relationship force assignments. 2. intelligent assignment is based AI(chatgpt, gemini, claude, deepseek) choosen by user or GAS was used to finish off the rest of the assignment based on historical workload count and also future opportunity count of each worker. Task assignment is done on row(weekly) bases
+
 # 🙏 Acknowledgements
 
 This project was created to streamline Cantonese worship ministry coordination and reduce repetitive administrative work for worship leaders and A/V ministry coordinators.

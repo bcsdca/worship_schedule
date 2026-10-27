@@ -12,7 +12,7 @@ function buildHistoricalNormalizeSchedule() {
   }
 
   const targetSheetLastRow = targetSheet.getLastRow() + 1;
-  Logger.log("The starting row of the 'Historical Normalized' sheet to append data = " + targetSheetLastRow)
+  logMessage(`${getCallStackTrace()}: The starting row of the 'Historical Normalized' sheet to append data = ${targetSheetLastRow}`)
 
   const data = sourceSheet.getDataRange().getValues();
   const headers = data[0];
@@ -43,6 +43,12 @@ function buildHistoricalNormalizeSchedule() {
     }
   }
 
+  if (output.length == 0) {
+    logMessage(`${getCallStackTrace()}: There is no row to save to 'Historical Normalized' sheet`)
+    return;
+  }
+
   // Write the normalized data to the 'Historical Normalized' sheet
   targetSheet.getRange(targetSheetLastRow, 1, output.length, 3).setValues(output);
+  logMessage(`${getCallStackTrace()}: There is ${output.length} row to save to 'Historical Normalized' sheet`)
 }

@@ -4,8 +4,10 @@
 //using a lot of functions to streamline the code
 //adding 2 rows for description of changes and who is making the change
 //change the style of the table
-function worshipScheduleChangeReminder(e, test) {
+function worshipScheduleChangeReminder(e, isTesting = false) {
   logMessage(getCallStackTrace() + ": " + JSON.stringify(e, null, 2));
+
+  const comingSundayStr = getComingSunday();
 
   clearLogSheet();
 
@@ -29,6 +31,7 @@ function worshipScheduleChangeReminder(e, test) {
 
     var modifyRow = e.range.getRow();
     var modifyDate = sheet.getRange(modifyRow, 1).getDisplayValue();
+    const modifyDateStr = formatDate(sheet.getRange(modifyRow, 1).getValue());
     var modifyColumn = e.range.getColumn();
     var taskName = headerRow[modifyColumn - 1];
     var toDay = new Date();
@@ -44,11 +47,53 @@ function worshipScheduleChangeReminder(e, test) {
         var changeDescription = descriptionResponse.getResponseText();
 
         if (oldValue) {
-          handleAssignmentChange("Removed", emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, test, sheetName);
+          handleAssignmentChange("Removed", emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, isTesting, sheetName);
         }
 
         if (inputValue) {
-          handleAssignmentChange("Added", emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, test, sheetName);
+          handleAssignmentChange("Added", emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, isTesting, sheetName);
+          //we are modifing the name of the person who do the powerpoint preparation for this week
+          //so we needed to modify the weeklyShare sheet to reflect that
+          if ((taskName == "Power Point Preparation") && (modifyDateStr === comingSundayStr)) {
+            logMessage(getCallStackTrace() + `: toDay = ${toDay}, modifyDate = ${modifyDate}, we are changing the powerpoint preparation person to ${inputValue} for this coming week (${comingSundayStr})`)
+            // --- Open sheet ---
+            
+            const ss = SpreadsheetApp.openById(slideSrcID);
+            const sheetHandoff = ss.getSheetByName("handoff");
+
+            if (!sheetHandoff) {
+              throw new Error(`Sheet "handoff" not found in spreadsheet ${handoff}`);
+            }
+
+            // --- Find target row by comingSundayStr ---
+            const data = sheetHandoff.getDataRange().getValues();
+            let targetRow = -1;
+
+            for (let i = 1; i < data.length; i++) {
+              //logMessage(`${getCallStackTrace()}: Row ${i + 1} has date = ${data[i][0]}`);
+              if (formatDate(data[i][0]) === comingSundayStr) {
+                targetRow = i + 1; // convert index → sheet row
+                break;
+              }
+            }
+
+            if (targetRow === -1) {
+              logMessageError(`${getCallStackTrace()}: No row found for date: ${comingSundayStr}`);
+            } else {
+              // --- Extract contact info ---
+              const name = inputValue;
+              const email = emailCollection.get(name);
+
+              // --- Update ONLY columns B and C ---
+              sheetHandoff.getRange(targetRow, 2).setValue(name);   // Column B
+              sheetHandoff.getRange(targetRow, 3).setValue(email);  // Column C
+              sheetHandoff.getRange(targetRow, 8).setValue(new Date()); // new date
+
+              logMessage(
+                `${getCallStackTrace()}: Updated Power Point Perparation duty to "weeklyShare" for ${comingSundayStr} at row ${targetRow}, name=${name}, email=${email}`
+              );
+            }
+          }
         }
 
         buildPivotTable();
@@ -105,7 +150,7 @@ function shouldProcessChange(oldValue, inputValue, modifyRow, dataRowStart, data
     (new Date(modifyDate) > toDay);
 }
 
-function handleAssignmentChange(actionType, emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, test, sheetName) {
+function handleAssignmentChange(actionType, emailCollection, oldValue, inputValue, taskName, modifyDate, modifyRow, modifyColumn, userName, changeDescription, toDay, isTesting, sheetName) {
   var affectedName = actionType === "Removed" ? oldValue : inputValue;
 
   // Load the HTML template
@@ -124,8 +169,10 @@ function handleAssignmentChange(actionType, emailCollection, oldValue, inputValu
   // Evaluate the template to generate the final HTML
   var table = htmlTemplate.evaluate().getContent();
 
-  var toList = test ? emailCollection.get("Bill Chu") : (emailCollection.get(affectedName) || "");
-  var ccList = test ? emailCollection.get("Bill Chu") : emailCollection.get("Andy Chu") + "," + emailCollection.get("Bill Chu") + "," + emailCollection.get("Edmond Chan");
+  var toList = isTesting ? emailCollection.get("Bill Chu") : (emailCollection.get(affectedName) || "");
+  var ccList = isTesting ? emailCollection.get("Bill Chu") : emailCollection.get("Andy Chu") + "," + emailCollection.get("Bill Chu") + "," + emailCollection.get("Edmond Chan");
+
+  logMessage(getCallStackTrace() + `: istesting = ${isTesting}, email toList = ${toList}, email cclist = ${ccList}`);
 
   if (affectedName && emailCollection.get(affectedName)) {
     MailApp.sendEmail({

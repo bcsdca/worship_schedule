@@ -1,7 +1,10 @@
 function getComingSunday() {
   const today = new Date();
 
-  const offset = today.getDay() === 0 ? 0 : (7 - today.getDay());
+  const offset = today.getDay() === 0
+    ? 7
+    : (7 - today.getDay());
+
   const comingSunday = new Date(today);
   comingSunday.setDate(today.getDate() + offset);
 
@@ -11,7 +14,11 @@ function getComingSunday() {
     "MM/dd/yyyy"
   );
 
-  logMessage(getCallStackTrace() + `: Coming Sunday = ${comingSundayStr}`);
+  logMessage(
+    getCallStackTrace() +
+    `: Coming Sunday = ${comingSundayStr}`
+  );
 
   return comingSundayStr;
 }
+

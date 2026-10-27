@@ -1,10 +1,10 @@
-function run_email_reminder() {
+function emailReminderTuesday() {
     const Modes = {
     testing: false,
     sendEmail: true,
     sendText: false
   };
 
-  console.log("Running the email reminder normal mode !!!");
+  logMessage(getCallStackTrace() + `: Running the email reminder normal mode !!!`);
   worshipReminder(Modes);
 }

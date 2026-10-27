@@ -1,7 +1,8 @@
 function collectUnavailableDatesResponse(e) {
   const LOCK_TIMEOUT_MS = 30000; // Max wait time to acquire lock
 
-  logMessage(getCallStackTrace() + ": The trigger event = " + JSON.stringify(e, null, 2));
+  //logMessage(getCallStackTrace() + ": The trigger event = " + JSON.stringify(e, null, 2));
+  //logMessage(`getCallStackTrace(): Trigger Event -> row=${e.range.getRow()} col=${e.range.getColumn()} value=${e.value} oldValue=${e.oldValue}`);
 
   var sheet = e.range.getSheet();
   var sheetName = sheet.getName();

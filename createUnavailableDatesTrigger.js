@@ -14,14 +14,5 @@ function createUnavailableDatesTrigger() {
     .forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet())
     .onEdit()
     .create();
-
-  SpreadsheetApp.getUi().alert('Unavailable sheet Monitoring has been enabled.');
-
-  //update the sheet permission to editor for everybody to update the "unavailable dates" tab for the 1st time
-  //this permission will get remove on this function "removeUnavailableDatesTrigger"
-  setAnyoneWithLinkToEditor();
-
-  //enable the trigger for running the UpdateAllDropDowns function everyday at 12:30am
-  toggleTriggerUpdateAllDropDowns("enable")
-  
+    
 }

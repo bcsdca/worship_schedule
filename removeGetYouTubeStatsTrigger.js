@@ -1,20 +1,55 @@
 function removeGetYouTubeStatsTrigger() {
-  let remove_array = []
-  var oldTrigger = ScriptApp.getScriptTriggers()
-  logMessage(getCallStackTrace() + ": The below triggers are the current running triggers !!!");
-  //Logger.log(oldTrigger.length);
-  for (var i = 0; i < oldTrigger.length; i++) {
-    logMessage(getCallStackTrace() + ": Current running trigger is " + ScriptApp.getScriptTriggers()[i].getHandlerFunction());
-    if (ScriptApp.getScriptTriggers()[i].getHandlerFunction() == "getYouTubeStats") {
-      remove_array.push(oldTrigger[i]);
+  clearLogSheet();
+
+  const triggers = ScriptApp.getProjectTriggers();
+
+  logMessage(
+    getCallStackTrace() +
+    ": Checking existing triggers..."
+  );
+
+  let found = false;
+
+  triggers.forEach(trigger => {
+    const handler = trigger.getHandlerFunction();
+
+    logMessage(
+      getCallStackTrace() +
+      ": Found trigger -> " + handler
+    );
+
+    if (handler === "getYouTubeStats") {
+      found = true;
+
+      ScriptApp.deleteTrigger(trigger);
+
+      logMessage(
+        getCallStackTrace() +
+        ": Deleted trigger -> getYouTubeStats"
+      );
     }
-  }
-
-  remove_array.forEach(function (row) {
-    ScriptApp.deleteTrigger(row);
-    logMessage(getCallStackTrace() + ": " + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd-HH:mm:ss') + ': Deleting getYouTubeStats trigger !!!');
-
   });
 
-  SpreadsheetApp.getActive().toast("Done, Removing get youTube Stat trigger 👍 !!!");
+  if (found) {
+    SpreadsheetApp.getActive().toast(
+      "Done removing getYouTubeStats trigger 👍"
+    );
+
+    logMessage(
+      getCallStackTrace() +
+      ": Successfully removed getYouTubeStats trigger."
+    );
+  } else {
+
+    SpreadsheetApp.getActive().toast(
+      "No getYouTubeStats trigger found ⚠️"
+    );
+
+    logMessage(
+      getCallStackTrace() +
+      ": No getYouTubeStats trigger found."
+    );
+  }
+
+  flushLogsToSheet();
 }

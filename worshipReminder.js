@@ -1,7 +1,7 @@
 function worshipReminder(Modes) {
 
   clearLogSheet();
-  
+
   //checking if Modes is defined or not
   //as well as others setting
   const run_test = Modes?.testing !== undefined ? Modes.testing : true;
@@ -79,8 +79,7 @@ function worshipReminder(Modes) {
     + email_collection.get("Bill Chu") + ","
     + email_collection.get("Sarah Hui") + ","
     + email_collection.get("Pastor Joseph Liang") + ","
-    + email_collection.get("Cheong Yik") + ",";
-
+   
   for (let i = 0; i < actual_numRows; i++) {
     const date = new Date(date_values[i][0]);
 
@@ -309,7 +308,7 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
             ', You are assigned to be the Worship Chairperson for this week.<br><br>' +
             '<div style="margin-left:20px;">' +
             '<span style="font-size:14px;">■ <b>Please "Reply All" to this email with the invocation passage, as soon as it is selected.</span><br>' +
-            'Please use one of the example formats below when submitting your invocation passage. This ensures that our weekly worship slides can be generated automatically without issues. <br><br>To make things easier, we strongly recommend copying and pasting one of the examples below and simply updating the content as needed:</b> <br><br>' +
+            'Please use one of the example formats below when submitting your invocation passage. Please also try to submit you invocation passage by Friday 5pm. This ensures that our weekly worship slides can be generated automatically without issues. <br><br>To make things easier, we strongly recommend copying and pasting one of the examples below and simply updating the content as needed:</b> <br><br>' +
             '***<br>' +
             'Call to worship: 詩篇 Psalms 1xx:1-5<br>' +
             'Call to worship: 詩篇 Psalms 1xx:11b,12-15<br>' +
@@ -324,6 +323,46 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
             msg_worship_chairperson3 =
               msg_worship_chairperson3 + msg_worship_apostle_creed;
           }
+
+          // --- Open slide src---
+          const ss = SpreadsheetApp.openById(slideSrcID);
+          const sheet = ss.getSheetByName("handoff");
+
+          if (!sheet) {
+            throw new Error(`Sheet "handoff" not found in spreadsheet "Slide Src"`);
+          }
+
+          // --- Find target row by comingSundayStr ---
+          const data = sheet.getDataRange().getValues();
+          let targetRow = -1;
+
+          for (let i = 1; i < data.length; i++) {
+            //logMessage(`${getCallStackTrace()}: Row ${i + 1} has date = ${data[i][0]}`);
+            if (formatDate(data[i][0]) === comingSundayStr) {
+              targetRow = i + 1; // convert index → sheet row
+              break;
+            }
+          }
+
+          if (targetRow === -1) {
+            logMessageError(`${getCallStackTrace()}: No row found for date: ${comingSundayStr}`);
+            break;
+          }
+
+          // --- Extract contact info ---
+          const name = dutyContacts[k];
+          const email = emailCollection.get(name);
+
+          // --- Update ONLY columns F and G ---
+          // for MC name and email address
+          sheet.getRange(targetRow, 6).setValue(name);   // Column F
+          sheet.getRange(targetRow, 7).setValue(email);  // Column G
+          sheet.getRange(targetRow, 8).setValue(new Date()); // new date
+
+          logMessage(
+            `${getCallStackTrace()}: Updated MC duty to "handoff" sheet of "Slide Src" for ${comingSundayStr} at row ${targetRow}, name=${name}, email=${email}`
+          );
+
           break;
         case "On-Stage Translator":
           msg_on_stage_translator1 = "\nDear ";
@@ -337,12 +376,12 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
           break;
         case "Power Point Preparation":
           {
-            // --- Open sheet ---
-            const ss = SpreadsheetApp.openById(weeklyShare);
+            // --- Open slide src---
+            const ss = SpreadsheetApp.openById(slideSrcID);
             const sheet = ss.getSheetByName("handoff");
 
             if (!sheet) {
-              throw new Error(`Sheet "handoff" not found in spreadsheet ${weeklyShare}`);
+              throw new Error(`Sheet "handoff" not found in spreadsheet "Slide Src"`);
             }
 
             // --- Find target row by comingSundayStr ---
@@ -369,10 +408,10 @@ function constructDutyMessages(dutyContacts, taskNames, emailCollection) {
             // --- Update ONLY columns B and C ---
             sheet.getRange(targetRow, 2).setValue(name);   // Column B
             sheet.getRange(targetRow, 3).setValue(email);  // Column C
-            sheet.getRange(targetRow, 6).setValue(new Date()); // new date
+            sheet.getRange(targetRow, 8).setValue(new Date()); // new date
 
             logMessage(
-              `${getCallStackTrace()}: Updated Power Point Perparation duty to "weeklyShare" for ${comingSundayStr} at row ${targetRow}, name=${name}, email=${email}`
+              `${getCallStackTrace()}: Updated Power Point Perparation duty to "handoff" sheet of "Slide Src" for ${comingSundayStr} at row ${targetRow}, name=${name}, email=${email}`
             );
 
             break;

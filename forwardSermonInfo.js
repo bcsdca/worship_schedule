@@ -8,8 +8,6 @@ function forwardSermonInfo(isTesting = false) {
     logMessage(`${getCallStackTrace()}: This function was called by a time trigger, so force isTesting = ${isTesting}`)
   }
 
-  const sermonQuery = "is:inbox newer_than:2d subject:(sermon -mandarin)";
-  //const sermonQuery = "is:inbox newer_than:4d subject:(sermon -mandarin)";
   const taskRequireEmailForward = ["Worship Chairperson", "Song Leader", "On-Stage Translator"];
   const praiseTeamMembers = ["Stephen Wong", "Jessica Wan", "Jason Tong", "Kenneth Kong", "Emily Lieu", "Josiah Lee"];
   const praiseTeamLeaders = [
@@ -31,7 +29,8 @@ function forwardSermonInfo(isTesting = false) {
 
   try {
     // Search for Emily's sermon info email
-    threads = GmailApp.search(sermonQuery, 0, 1);
+    // sermonInfoQuery is a global variable
+    threads = GmailApp.search(sermonInfoQuery, 0, 1);
     if (threads.length === 0) {
       throw new Error("No threads found.");
     } else {

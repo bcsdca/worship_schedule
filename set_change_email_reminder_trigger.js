@@ -1,41 +1,63 @@
 function set_change_email_reminder_trigger(option) {
   clearLogSheet();
 
-  // removing all old change email reminder triggers 1st
-  let remove_array = []
-  var oldTrigger = ScriptApp.getScriptTriggers()
-  //logMessage(oldTrigger.length);
-  logMessage(getCallStackTrace() + ": The below triggers are the current running triggers !!!");
-  for (var i = 0; i < oldTrigger.length; i++) {
-    logMessage(getCallStackTrace() + ": " + ScriptApp.getScriptTriggers()[i].getHandlerFunction());
-    if (ScriptApp.getScriptTriggers()[i].getHandlerFunction() == "run_change_email_reminder") {
-      remove_array.push(oldTrigger[i]);
+  const triggers = ScriptApp.getProjectTriggers();
 
+  logMessage(getCallStackTrace() + ": Checking existing triggers...");
+
+  let found = false;
+
+  triggers.forEach(trigger => {
+    const handler = trigger.getHandlerFunction();
+
+    logMessage(getCallStackTrace() + ": Found trigger -> " + handler);
+
+    if (handler === "run_change_email_reminder") {
+      found = true;
+
+      ScriptApp.deleteTrigger(trigger);
+
+      logMessage(
+        getCallStackTrace() +
+        ": Deleted old trigger -> run_change_email_reminder"
+      );
     }
-  }
-  remove_array.forEach(function (row) {
-    //logMessage(row);
-    ScriptApp.deleteTrigger(row);
-    logMessage("set_change_email_reminder_trigger" + ": " + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd-HH:mm:ss') + ': Deleting the old change email reminder trigger ' + row + ' !!!');
-
   });
 
-  if (option == "enable") {
+  if (option === "enable") {
+
     ScriptApp.newTrigger("run_change_email_reminder")
       .forSpreadsheet(SpreadsheetApp.getActive())
       .onEdit()
       .create();
 
-    logMessage(getCallStackTrace() + ": The new a/v schedule change email reminder trigger was just created !!!",);
-    SpreadsheetApp.getActive().toast("The new a/v schedule change email reminder trigger was just created 👍 !!!");
+    logMessage(
+      getCallStackTrace() +
+      ": Created new change email reminder trigger."
+    );
+
+    SpreadsheetApp.getActive().toast(
+      "The new a/v schedule change email reminder trigger was just created 👍"
+    );
+
   } else {
-    logMessage(getCallStackTrace() + ": The a/v schedule change email reminder trigger was just removed !!!",);
-    SpreadsheetApp.getActive().toast("The a/v schedule change email reminder trigger was just removed 👍 !!!");
+
+    if (found) {
+      logMessage(
+        getCallStackTrace() +
+        ": Existing change email reminder trigger removed."
+      );
+    } else {
+      logMessage(
+        getCallStackTrace() +
+        ": No existing change email reminder trigger found."
+      );
+    }
+
+    SpreadsheetApp.getActive().toast(
+      "The a/v schedule change email reminder trigger was removed 👍"
+    );
   }
 
   flushLogsToSheet();
-  
-  const sheet0 = SpreadsheetApp.getActive().getSheets()[0];
-  SpreadsheetApp.getActive().setActiveSheet(sheet0); // keep the view at the 1st sheet
-  //SpreadsheetApp.getActive().setActiveSheet(sheet); // keep the view at the worship
 }

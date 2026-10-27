@@ -2,7 +2,7 @@ function renderImages() {
   const today = new Date();
 
   const comingSundayStr = getComingSunday();
-  
+
   //const comingSundayMonth = comingSunday.getMonth();
   const comingSundayWeekOfMonth = getComingSundayWeekOfMonth();
 
@@ -37,17 +37,23 @@ function renderImages() {
   let imageSpecialBlob = null;
 
   try {
-    const sheet = SpreadsheetApp
-      .openById(weeklyShare)
-      .getSheetByName("handoff");
+    
+    // --- Open slide src---
+    const ss = SpreadsheetApp.openById(slideSrcID);
+    const sheet = ss.getSheetByName("handoff");
+
+    if (!sheet) {
+      throw new Error(`Sheet "handoff" not found in spreadsheet "Slide Src"`);
+    }
+
 
     const data = sheet.getDataRange().getValues();
-    
+
     for (let i = 1; i < data.length; i++) {
       const rowDate = data[i][0];
 
       if (!rowDate) continue;
-     
+
       if (formatDate(rowDate) === comingSundayStr) {
         const imageSpecialFileId = data[i][3];
 
